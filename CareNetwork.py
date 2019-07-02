@@ -2,6 +2,7 @@ import networkx as nx
 import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from utils import AbsoluteDualityGap, optimizeFOPdual, vectorizePaths
 
@@ -140,7 +141,7 @@ class CareNetwork:
 
             # draw the path, only between visible nodes
             if path is not None:
-                path = np.flatnonzero(vectorizePaths(Prob.step_index,[path],Prob.edges)[0])
+                path = np.flatnonzero(vectorizePaths(self.step_index,[path],self.edges)[0])
                 visiblePath = [i for i in path if ind2edge[i][0] in visibleNodes and ind2edge[i][1] in visibleNodes]
                 path_pairs = [ind2edge[i] for i in visiblePath]
                 path_colors = [p[i] for i in visiblePath]
@@ -170,6 +171,7 @@ class CareNetwork:
             #ax.axis('tight')
             #ax.axis('equal')
             ax.axis('off')
+            fig.show()
 
         else: self.__missingNetworkError()
     
@@ -204,7 +206,7 @@ class CareNetwork:
             for subpath_constraint in subpath_constraints:
                 constraint = []
                 for component in subpath_constraint:
-                    indices = list(np.flatnonzero(vectorizePath(self.step_index,[component],self.edges)[0]>0))
+                    indices = list(np.flatnonzero(vectorizePaths(self.step_index,[component],self.edges)[0]>0))
                     constraint.append(indices)
                 constraints.append(constraint)
 
@@ -318,7 +320,7 @@ class CareNetwork:
             N = A[:m-1,mask]
             H = np.append(-(np.linalg.inv(B)@N),np.identity(n-(m-1)),axis=0)
             b_H = np.append(-np.linalg.inv(B)@b,np.zeros(n-(m-1)))
-            z = np.array(vectorizePaths(Prob.step_index,reference_paths,Prob.edges))[:,mask]
+            z = np.array(vectorizePaths(self.step_index,paths,self.edges))[:,mask]
             denom = (((H@z.T).T-b_H)**2).sum()
             rho = max(1-numer/denom,0)
             return rho

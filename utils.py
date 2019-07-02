@@ -1,5 +1,6 @@
 import cvxpy as cvx
 import numpy as np
+import networkx as nx
 
 def AbsoluteDualityGap(A,b, refpoints, goodpoints=[], badpoints=[], constraints=[],capconstraints=[], exp=2, solver='GUROBI', normIndex=None, reg_par=0):    
     results = {}
@@ -12,7 +13,7 @@ def AbsoluteDualityGap(A,b, refpoints, goodpoints=[], badpoints=[], constraints=
     z1 = cvx.Variable(nGoodPoints)
     z2 = cvx.Variable(nBadPoints)
     c = cvx.Variable(n)
-    obj = cvx.Minimize(cvx.sum_entries(z0**exp)+reg_par*((nBadPoints/nGoodPoints)*cvx.sum_entries(z1)-cvx.sum_entries(z2)))
+    obj = cvx.Minimize(cvx.sum(z0**exp)+reg_par*((nBadPoints/nGoodPoints)*cvx.sum_entries(z1)-cvx.sum_entries(z2)))
     #obj = cvx.Minimize(cvx.sum_entries(z0**exp))
     basecons = []
     basecons.append(A.T * y <= c)
@@ -31,7 +32,7 @@ def AbsoluteDualityGap(A,b, refpoints, goodpoints=[], badpoints=[], constraints=
     for capconstraint in capconstraints:
         basecons.append(c[capconstraint[0]] >= capconstraint[1])
     if nBadPoints==0:
-        for j in badEdges(points,n):
+        for j in badEdges(refpoints,n):
             basecons.append(c[j] >= 0)
         #for j in goodEdges(points,n):
         #    basecons.append(c[j] <= 0)
