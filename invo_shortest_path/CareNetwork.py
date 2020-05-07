@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from itertools import combinations
 
-from utils import AbsoluteDualityGapPhase2, optimizeFOPdual, vectorizePaths, vectorizeStatePaths
+from utils import AbsoluteDualityGap, AbsoluteDualityGapPhase2, optimizeFOPdual, vectorizePaths, vectorizeStatePaths
 
 class InverseShortestPathModel():
             
@@ -34,13 +34,16 @@ class InverseShortestPathModel():
         else: self._missingNetworkError()
         
     def solveIO(self, refpoints, goodpoints = [], badpoints = [], constraints = [], 
-                        capconstraints = [], solver = 'GUROBI',err_tol=0, verbose = True):
+                        capconstraints = [], solver = 'GUROBI',err_tol=0, verbose = True, normIndex=None, exp=1):
       
         if (self.startDummy) & (self.endDummy):
 
-            c, y = AbsoluteDualityGapPhase2(A=self._A, b=self._b, refpoints=refpoints, goodpoints=goodpoints,
+            if (len(goodpoints)>0) | (len(badpoints)>0):
+                c, y = AbsoluteDualityGapPhase2(A=self._A, b=self._b, refpoints=refpoints, goodpoints=goodpoints,
                                              badpoints=badpoints, constraints=constraints, capconstraints=capconstraints,
                                              solver = solver, err_tol=err_tol,verbose=verbose)
+            else:
+                c, y = AbsoluteDualityGap(A=self._A,b=self._b, refpoints=refpoints, constraints=constraints,capconstraints=capconstraints, exp=exp, solver='GUROBI', normIndex=normIndex)
 
             c = np.asarray(c)
             y = np.asarray(y)
@@ -65,17 +68,16 @@ class InverseShortestPathModel():
         nodelength = edgelength+1
         start = self.nodes[np.flatnonzero(self._b==-1)[0]]
         end = self.nodes[np.flatnonzero(self._b==1)[0]]
-        D[start,1]=0
+        D[start,0]=0
         #for v in nodes: 
         #    if v != start: 
         #        D[v,1]=M
         
-        G_reverse = self.G.reverse(copy=True)
-        
-        for k in range(2,nodelength+1):
+       
+        for k in range(1,nodelength+1):
             for v in self.nodes:
                 candidates = {}
-                for u in G_reverse.neighbors(v):
+                for u in self.G.predecessors(v):
                     #if (u,v) in self.edges:
                     if (u,k-1) in D:
                         candidates[u] = D[u,k-1]-self.G[u][v]['weight']
@@ -100,7 +102,7 @@ class InverseShortestPathModel():
             Dmax = self.maxDistances(maxlength)
 
             numerator = self.getEpsilon(points,exp)
-            denom = (np.array([Dmax[length+1]-obj for length in pathlengths]))**exp
+            denom = (np.array([Dmax[length]-obj for length in pathlengths]))**exp
             omega = 1-numerator/denom
         else:
             print('Edge weights undefined')
@@ -300,7 +302,7 @@ class SingleStateModel(InverseShortestPathModel):
             # draw the path, only between visible nodes
             if path is not None:
                 if isinstance(path,list): 
-                    path = np.flatnonzero(vectorizePaths(self.step_index,[path],self.edges)[0])
+                    path = np.flatnonzero(vectorizePaths(self,[path])[0])
                 visiblePath = [i for i in path if ind2edge[i][0] in visibleNodes and ind2edge[i][1] in visibleNodes]
                 path_pairs = [ind2edge[i] for i in visiblePath]
                 path_colors = [p[i] for i in visiblePath]
@@ -373,13 +375,12 @@ class SingleStateModel(InverseShortestPathModel):
                 
             return constraints, capconstraints
         
-    def getCoefficients(self,refpaths,goodpaths,badpaths,step_ranks=[],subpath_constraints=[],penalty_constraints=[],err_tol=0,verbose=True):
+    def getCoefficients(self,refpaths,goodpaths,badpaths,step_ranks=[],subpath_constraints=[],penalty_constraints=[],err_tol=0,verbose=True,normIndex=None,exp=1):
         constraints, capconstraints = self.getConstraints(step_ranks=step_ranks,subpath_constraints=subpath_constraints,penalty_constraints=penalty_constraints)
         refpoints = vectorizePaths(self, refpaths) 
         goodpoints = vectorizePaths(self, goodpaths) 
         badpoints = vectorizePaths(self, badpaths) 
-
-        super().solveIO(refpoints=refpoints,goodpoints=goodpoints,badpoints=badpoints,constraints=constraints,capconstraints=capconstraints,verbose=verbose)
+        super().solveIO(refpoints=refpoints,goodpoints=goodpoints,badpoints=badpoints,constraints=constraints,capconstraints=capconstraints,verbose=verbose,normIndex=normIndex)
         
         
 class MultiStateModel(InverseShortestPathModel):

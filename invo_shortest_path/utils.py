@@ -222,38 +222,28 @@ def AbsoluteDualityGapPhases(A,b, refpoints, goodpoints=[], badpoints=[], constr
     return clist, ylist
 
 
-def AbsoluteDualityGap(A,b, refpoints, goodpoints=[], badpoints=[], constraints=[],capconstraints=[], exp=2, solver='GUROBI', normIndex=None, reg_par=0):    
+def AbsoluteDualityGap(A,b, refpoints, constraints=[],capconstraints=[], exp=2, solver='GUROBI', normIndex=None):  
     results = {}
     m,n = A.shape
     nRefPoints = len(refpoints)
-    nGoodPoints = len(goodpoints)
-    nBadPoints = len(badpoints)
     y = cvx.Variable(m)
     c = cvx.Variable(n)
     z0 = cvx.Variable(nRefPoints)
-    if (nGoodPoints>0) & (nBadPoints>0):
-        z1 = cvx.Variable(nGoodPoints)
-        z2 = cvx.Variable(nBadPoints)
-        obj = cvx.Minimize(cvx.sum_entries(z0**exp)+reg_par*((nBadPoints/nGoodPoints)*cvx.sum_entries(z1)-cvx.sum_entries(z2)))
-    else:
-        obj = cvx.Minimize(cvx.sum_entries(z0**exp))
+    obj = cvx.Minimize(cvx.sum_entries(z0**exp))
     
     #obj = cvx.Minimize(cvx.sum_entries(z0**exp))
     basecons = []
     basecons.append(A.T * y <= c)
     basecons.append(y[m-1] == 0)
     basecons.append(A*c == 0)
-    basecons.append(z0 == c.T*refpoints - b.T*y)
-    basecons.append(z1 == c.T*goodpoints - b.T*y)
-    basecons.append(z2 == c.T*badpoints - b.T*y)
+    basecons.append(z0.T == c.T*refpoints - b.T*y)
 
     
     for constraint in constraints:
         basecons.append(cvx.sum_entries(c[constraint[0]]) <= cvx.sum_entries(c[constraint[1]]))
     for capconstraint in capconstraints:
         basecons.append(c[capconstraint[0]] >= capconstraint[1])
-    if nBadPoints==0:
-        for j in badEdges(refpoints,n):
+    for j in badEdges(refpoints,n):
             basecons.append(c[j] >= 0)
         #for j in goodEdges(points,n):
         #    basecons.append(c[j] <= 0)
