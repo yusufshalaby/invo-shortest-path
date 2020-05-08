@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from itertools import combinations
 
-from IO import AbsoluteDualityGap, AbsoluteDualityGapPhase2, optimizeFOPdual, vectorizePaths, vectorizeStatePaths
+from InverseModels import AbsoluteDualityGap, AbsoluteDualityGapPhase2, optimizeFOPdual, vectorizePaths, vectorizeStatePaths
 
 class InverseShortestPathModel():
             
