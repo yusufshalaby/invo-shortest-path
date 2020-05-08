@@ -46,8 +46,9 @@ fig = network.showNetwork(show_weights='c',show_labels=False)
 ```
 ![](https://github.com/yusufshalaby/invo-shortest-path/blob/master/imgs/example_graph_weights.png)
 
-The code below creates new out of sample good and bad pathways by sampling from the same distributions as before 
-and generates concordance scores using the optimized weights. 
+Once you have weights you can measure pathway concordance.
+Below we generate new random good and bad pathways 
+and meausre their concordance scores using the optimized weights. 
 
 ```python
 goodpaths_outofsample = [['START','start option 1'] + random.choices(steps[:5],k=10) + ['end option 2','END'] for i in range(n_goodpoints)]
