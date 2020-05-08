@@ -23,7 +23,7 @@ end_options = ['end option 2','end option 1']
 
 network = SingleStateModel(activities,start_options,end_options)
 ```
-You define define a shortest path and visualize it on the graph.
+You can define a shortest path and visualize it on the graph.
 
 ```python
 shortestpath = ['START','start option 1','A','C','E','G','H','end option 2','END']
