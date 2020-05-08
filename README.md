@@ -1,4 +1,4 @@
-# Inverse Optimization for the Shortest Path Problem
+# Shortest Path Inverse Optimization
 Code for the paper "An Inverse Optimization Approach to Measuring Pathway Concordance", submitted to Management Science.
 
 The inverse shortest path problem finds a set of costs such that a given set of paths are considered optimal to the shortest path problem.
