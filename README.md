@@ -2,7 +2,7 @@
 Code for the paper "An Inverse Optimization Approach to Measuring Pathway Concordance", submitted to Management Science.
 
 The inverse shortest path problem finds a set of costs such that a given set of paths are considered optimal to the shortest path problem.
-We extend this framework by allowing for supplementary 'good' and 'bad' pathways such that the output costs make the 'good' ('bad')
+We extend this framework by allowing for supplementary 'good' and 'bad' pathways in our data. The output costs make the 'good' ('bad')
 pathways as close to (far away from) optimality as possible. We also offer two metrics for evaluating the 'goodness' of out-of-sample pathways. 
 
 The code was used in the paper to model the clinical care network for a cohort of colon cancer patients, where 
