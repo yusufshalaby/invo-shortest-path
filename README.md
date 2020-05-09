@@ -10,7 +10,7 @@ survived (died) patient pathways are used as supplementary 'good' ('bad') data p
 Guideline concordance for out of sample patient pathways is measured using our two 'goodness' metrics. 
 
 ## Example
-The example below creates a single state network with activities ranging from A through J and two options for how to start and end.
+The example below creates a network with activities ranging from A through J and two options for how to start and end.
 
 ```python
 from CareNetwork import *
