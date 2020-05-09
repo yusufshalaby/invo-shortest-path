@@ -48,7 +48,7 @@ fig = network.showNetwork(show_weights='c',show_labels=False)
 
 Once you have weights you can measure pathway concordance.
 Below we generate new random good and bad pathways 
-and meausre their concordance scores using the optimized weights. 
+and measure their concordance scores using the optimized weights. 
 
 ```python
 goodpaths_outofsample = [['START','start option 1'] + random.choices(steps[:5],k=10) + ['end option 2','END'] for i in range(n_goodpoints)]
